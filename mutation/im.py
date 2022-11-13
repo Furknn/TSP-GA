@@ -4,8 +4,7 @@ from random import sample, random
 def insertion_mutation(offsprings: list, mutation_probability: float):
     mutated_offsprings = []
     for offspring in offsprings:
-        rn = random()
-        if int(rn * 100) < int(mutation_probability * 100):
+        if int(random() * 100) < int(mutation_probability * 100):
             # randomly select a mutation points
             point1, point2 = sorted(sample(range(len(offspring)), 2))
             # move point2 to next to point1

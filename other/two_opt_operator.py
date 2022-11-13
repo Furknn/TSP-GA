@@ -17,7 +17,7 @@ def two_opt_operator(tsp_map: TSPMap, population: list, m: int, n: int):
         for j in range(n):
             individual_copy = individual.copy()
             # randomly select two nodes, sorted
-            node1, node2 = sorted(sample(range(1, tsp_map.size + 1), 2))
+            node1, node2 = sorted(sample(range(tsp_map.size), 2))
             # swap the nodes
             new_individual = two_opt_swap(individual_copy, node1, node2)
             # if the new individual is better than the old one, replace the old one with the new one

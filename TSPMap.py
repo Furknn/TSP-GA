@@ -23,12 +23,12 @@ class TSPMap:
 
             line = line.split()
 
-            self.cities[int(line[0])] = {"x": int(line[1]), "y": int(line[2])}
+            self.cities[int(line[0]) - 1] = {"x": int(line[1]), "y": int(line[2])}
             self.size += 1
 
         # Fill the distances list
-        for i in range(1, self.size + 1):
-            for j in range(i + 1, self.size + 1):
+        for i in range(0, self.size):
+            for j in range(i + 1, self.size):
                 city1 = self.cities[i]
                 city2 = self.cities[j]
                 self.distances[(i, j)] = self.distance(city1, city2)

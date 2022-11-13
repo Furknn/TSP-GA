@@ -8,7 +8,8 @@ def steady_state_survivor_selection(tsp_map: TSPMap, parents: list, offsprings: 
     shuffle(offsprings)
 
     # select random individual from offsprings and replace the worst individual from parents with it unless it exists
-    # in parents if offsprings[0] not in parents:
+    # in parents
+    # if offsprings[0] not in parents:
     parents[-1] = offsprings[0]
 
     # select random individual from offsprings and replace random individual from parents with it
