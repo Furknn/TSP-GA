@@ -118,27 +118,32 @@ def varying_values(tsp_map: TSPMap, best: list):
     mutation_operator = best[1]
     # log at every generation
     log_generations = [1000, 5000, 20000]
-    cases = [{"K": 10, "N": 5, "M": 1}, {"K": 20, "N": 10, "M": 3}, {"K": 50, "N": 20, "M": 5}]
+    K = [10, 20, 50]
+    N = [5, 10, 20]
+    M = [1, 3, 5]
 
-    for case in cases:
-        K = case["K"]
-        N = case["N"]
-        M = case["M"]
-        best_fitness_of_case = None
-        best_fitness_run_of_case = None
-        for j in range(case_run_time):
-            case = TSPGA(tsp_map, population_size, mutation_probability, generations, tournament_size,
-                         crossover_operator,
-                         mutation_operator, K, N, M, log_generations)
-            case_best_individual = case.run()
+    for k in K:
+        for n in N:
+            for m in M:
+                best_run_fitness_in_operator_combination = None
+                best_run_individual_in_operator_combination = None
+                best_case_run_time_in_operator_combination = None
 
-            if best_fitness_of_case is None or case.best_fitness < best_fitness_of_case:
-                best_fitness_of_case = case.best_fitness
-                best_fitness_run_of_case = j
+                for i in range(case_run_time):
+                    tsp_ga = TSPGA(tsp_map, population_size, mutation_probability, generations, tournament_size,
+                                   crossover_operator, mutation_operator, k, n, m, log_generations)
+                    best_individual_of_run = tsp_ga.run()
 
-            log_varying_values_each_run(K, M, N, best, case, case_best_individual, j)
+                    log_per_run(best_individual_of_run, crossover_operator, i, mutation_operator, tsp_ga)
 
-        log_varying_values_each_case(K, M, N, best_fitness_of_case, best_fitness_run_of_case)
+                    # check if best fitness of run is better than the best fitness of all runs in operator combination
+                    if best_run_fitness_in_operator_combination is None or best_run_fitness_in_operator_combination > tsp_ga.best_fitness:
+                        best_run_fitness_in_operator_combination = tsp_ga.best_fitness
+                        best_run_individual_in_operator_combination = best_individual_of_run
+                        best_case_run_time_in_operator_combination = i
+
+                # write to file
+                log_per_combination(best_case_run_time_in_operator_combination, crossover_operator, mutation_operator, k, n, m)
 
 
 def improving_performance(map, best: None):
@@ -158,10 +163,11 @@ def improving_performance(map, best: None):
     best_run = None
     best_fitness_of_case = None
     best_fitness_run_of_case = None
+
     for j in range(case_run_time):
         case = TSPGA(map, population_size, mutation_probability, generations, tournament_size,
                      crossover_operator,
-                     mutation_operator, K, N, M, log_generations,True)
+                     mutation_operator, K, N, M, log_generations, True)
         case_best_individual = case.run()
 
         if best_fitness_of_case is None or case.best_fitness < best_fitness_of_case:
