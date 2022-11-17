@@ -2,6 +2,7 @@ import time
 from random import *
 from statistics import stdev
 
+from crossover.csox import complete_subtour_order_crossover
 from crossover.ox import order_crossover, order_crossover_alt
 from crossover.pmx import partially_mapped_crossover, partially_mapped_crossover_alt
 from TSPMap import TSPMap
@@ -17,7 +18,8 @@ from selection.tournament_selection import tournament_selection
 class TSPGA:
     def __init__(self, tsp_map: TSPMap, population_size: int, mutation_probability: float, generations: int,
                  tournament_size: int,
-                 crossover_operator: str, mutation_operator: str, K: int, N: int, M: int, log_generations: list[int]):
+                 crossover_operator: str, mutation_operator: str, K: int, N: int, M: int, log_generations: list[int],
+                 preserve_best=False):
         self.tsp_map = tsp_map
         self.population_size = population_size
         self.mutation_probability = mutation_probability
@@ -29,9 +31,10 @@ class TSPGA:
         self.K = K  # frequency of 2-opt
         self.N = N  # number of cities to be swapped in two-opt
         self.M = M  # number of individuals to be swapped in two-opt
+        self.preserve_best = preserve_best
 
         self.best_fitness = None
-        self.best_individual = []
+        self.best_individual = None
         self.best_fitnesses = []
         self.avarage_fitnesses = []
         self.standard_deviations = []
@@ -45,7 +48,7 @@ class TSPGA:
         # Create %80 of the population randomly
         p80 = int(self.population_size * 0.8)
         while len(population) < p80:
-            individual = list(range(0, self.tsp_map.size ))
+            individual = list(range(0, self.tsp_map.size))
             shuffle(individual)
             if individual not in population:
                 population.append(individual)
@@ -63,6 +66,8 @@ class TSPGA:
             offsprings = order_crossover_alt(mating_pool)
         elif self.crossover_operator == "PMX":
             offsprings = partially_mapped_crossover_alt(mating_pool)
+        elif self.crossover_operator == "CSOX":
+            offsprings = complete_subtour_order_crossover(mating_pool)
         else:
             raise Exception("Unknown crossover operator")
         return offsprings
@@ -92,20 +97,30 @@ class TSPGA:
             population.sort(key=lambda x: self.tsp_map.fitness(x))
             if i % self.K == 0:
                 population = two_opt_operator(self.tsp_map, population, self.M, self.N)
-                population.sort(key=lambda x: self.tsp_map.fitness(x))
+
+            population.sort(key=lambda x: self.tsp_map.fitness(x))
+
+            if self.preserve_best:
+                if self.best_individual is None:
+                    self.best_individual = population[0]
+                    self.best_fitness = self.tsp_map.fitness(self.best_individual)
+                elif self.tsp_map.fitness(population[0]) < self.best_fitness:
+                    self.best_individual = population[0]
+                    self.best_fitness = self.tsp_map.fitness(self.best_individual)
+                elif self.tsp_map.fitness(population[0]) > self.best_fitness:
+                    population[-1] = self.best_individual
+                    population.sort(key=lambda x: self.tsp_map.fitness(x))
 
             population_unique = set(tuple(individual) for individual in population)
-            if len(population_unique) < self.population_size:
-                print("Population has duplicates")
             self.best_fitness = self.tsp_map.fitness(population[0])
-            avarage_fitness = sum([self.tsp_map.fitness(individual) for individual in population]) / len(population)
+            average_fitness = sum([self.tsp_map.fitness(individual) for individual in population]) / len(population)
             standard_deviation = stdev([self.tsp_map.fitness(individual) for individual in population])
             print(
-                f"Generation: {i} Best fitness: {self.best_fitness} Avarage fitness: {avarage_fitness} Standard deviation: {standard_deviation} Population size: {len(population_unique)}")
+                f"Generation: {i} Best fitness: {self.best_fitness} Avarage fitness: {average_fitness} Standard deviation: {standard_deviation} Population size: {len(population_unique)}")
 
             if i in self.log_generations:
                 self.best_fitnesses.append(self.best_fitness)
-                self.avarage_fitnesses.append(avarage_fitness)
+                self.avarage_fitnesses.append(average_fitness)
                 self.standard_deviations.append(standard_deviation)
 
             if self.best_fitness is None or self.tsp_map.fitness(population[0]) < self.best_fitness:

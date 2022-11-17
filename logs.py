@@ -32,37 +32,36 @@ def log_per_run(best_individual_of_run, crossover_operator, i, mutation_operator
         f.write("Case run: " + str(i) + "\n")
 
 
-def report_figure(best_case, generations, worst_case):
+def report_figure(best_case, gen, worst_case):
     # Report results as a figure
     # best
     best_data = pd.DataFrame({'Best fitness': best_case.best_fitnesses, 'Mean fitness': best_case.avarage_fitnesses})
-    best_standart_deviation = pd.DataFrame({'Standard deviation': best_case.standard_deviations})
+    # best_standart_deviation = pd.DataFrame({'Standard deviation': best_case.standard_deviations})
     p = sns.lineplot(data=best_data)
-    p.fill_between([i for i in range(0, generations)],
-                   y1=best_data['Mean fitness'] - best_standart_deviation['Standard deviation'],
-                   y2=best_data['Mean fitness'] + best_standart_deviation['Standard deviation'], alpha=.5)
+    # p.fill_between([i for i in range(0, generations)],
+    #                y1=best_data['Mean fitness'] - best_standart_deviation['Standard deviation'],
+    #                y2=best_data['Mean fitness'] + best_standart_deviation['Standard deviation'], alpha=.5)
     p.set_xlabel("Generation")
     p.set_ylabel("Fitness")
     p.set_ylim(20000, 30000)
-
 
     # increase resolution
     fig = p.get_figure()
     fig.savefig("second_run/best_case/best_case.png", dpi=300)
 
     plt.show()
+
     # worst
     worst_data = pd.DataFrame({'Best fitness': worst_case.best_fitnesses, 'Mean fitness': worst_case.avarage_fitnesses})
-    worst_standart_deviation = pd.DataFrame({'Standard deviation': worst_case.standard_deviations})
+    # worst_standart_deviation = pd.DataFrame({'Standard deviation': worst_case.standard_deviations})
     p = sns.lineplot(data=worst_data)
-    p.fill_between([i for i in range(0, generations)],
-                   y1=worst_data['Mean fitness'] - worst_standart_deviation['Standard deviation'],
-                   y2=worst_data['Mean fitness'] + worst_standart_deviation['Standard deviation'], alpha=.5)
+    # p.fill_between([i for i in range(0, generations)],
+    #               y1=worst_data['Mean fitness'] - worst_standart_deviation['Standard deviation'],
+    #               y2=worst_data['Mean fitness'] + worst_standart_deviation['Standard deviation'], alpha=.5)
     p.set_xlabel("Generation")
     p.set_ylabel("Fitness")
     # set y axis limit
     p.set_ylim(21200, 30000)
-
 
     # increase resolution to 4096x2160
     fig = p.get_figure()
@@ -159,3 +158,47 @@ def log_best_and_worst(best_case_run_time, best_crossover_operator, best_mutatio
         f.write(
             "Worst result path: first_run/" + worst_crossover_operator + "_" + worst_mutation_operator + "/results_" + str(
                 worst_case_run_time) + ".txt\n")
+
+
+def log_improving_performance_each_run( case, case_best_individual, j):
+    # write to file
+    if not os.path.exists("fourth_run/"):
+        os.makedirs("fourth_run/")
+    with open("fourth_run/result_" + str(j) + ".txt",
+              "w") as f:
+
+        for i in range(len(case.best_fitnesses)):
+            f.write("Generation: " + str(i) + " Best fitness: " + str(
+                case.best_fitnesses[i]) + " Avarage fitness: " + str(
+                case.avarage_fitnesses[i]) + " Standard deviation: " + str(
+                case.standard_deviations[i]) + "\n")
+
+        f.write("Best individual: " + str(case_best_individual) + "\n")
+        f.write("Best fitness: " + str(case.best_fitness) + "\n")
+        f.write("Running time: " + str(case.running_time) + "\n")
+
+
+def log_improving_performance_best_case(case, best_fitness_of_case, best_fitness_run_of_case):
+    # write to file
+    if not os.path.exists("fourth_run/"):
+        os.makedirs("fourth_run/")
+    with open("fourth_run/best_result.txt",
+              "w") as f:
+        f.write("Best fitness of case: " + str(best_fitness_of_case) + "\n")
+        f.write(
+            "Best run path: fourth_run/result_" + str(
+                best_fitness_run_of_case) + ".txt\n")
+
+
+def report_best_figure(best_run):
+    data = pd.DataFrame({"Best fitness": best_run.best_fitnesses, "Mean fitness": best_run.avarage_fitnesses})
+    p = sns.lineplot(data=data)
+    p.set_xlabel("Generation")
+    p.set_ylabel("Fitness")
+    p.set_ylim(20000, 25000)
+
+    # increase resolution
+    fig = p.get_figure()
+    fig.savefig("fourth_run/best_case.png", dpi=300)
+
+    plt.show()

@@ -6,10 +6,10 @@ from logs import *
 
 def varying_crossover_mutation_types(tsp_map: TSPMap):
     # First run, Varying the crossover and mutation operators
-    case_run_time = 1
+    case_run_time = 100
     population_size = 50
     mutation_probability = 0.1
-    generations = 100
+    generations = 20000
     tournament_size = 5
     crossover_operators = ["PMX", "OX"]
     mutation_operators = ["SM", "IM", "IVM"]
@@ -109,7 +109,7 @@ def performance_of_best_and_worst(tsp_map: TSPMap, best: list, worst: list):
 
 def varying_values(tsp_map: TSPMap, best: list):
     # First run, Varying the crossover and mutation operators
-    case_run_time = 1
+    case_run_time = 100
     population_size = 50
     mutation_probability = 0.1
     generations = 20000
@@ -141,10 +141,46 @@ def varying_values(tsp_map: TSPMap, best: list):
         log_varying_values_each_case(K, M, N, best_fitness_of_case, best_fitness_run_of_case)
 
 
+def improving_performance(map, best: None):
+    case_run_time = 100
+    population_size = 50
+    mutation_probability = 0.1
+    generations = 20000
+    tournament_size = 5
+    crossover_operator = "CSOX"  # best[0]
+    mutation_operator = "IVM"  # best[1]
+    K = 50
+    N = 20
+    M = 5
+
+    # log at every 100 generations
+    log_generations = [i for i in range(0, generations, 100)]
+    best_run = None
+    best_fitness_of_case = None
+    best_fitness_run_of_case = None
+    for j in range(case_run_time):
+        case = TSPGA(map, population_size, mutation_probability, generations, tournament_size,
+                     crossover_operator,
+                     mutation_operator, K, N, M, log_generations,True)
+        case_best_individual = case.run()
+
+        if best_fitness_of_case is None or case.best_fitness < best_fitness_of_case:
+            best_fitness_of_case = case.best_fitness
+            best_fitness_run_of_case = j
+            best_run = case
+
+        log_improving_performance_each_run(case, case_best_individual, j)
+
+    log_improving_performance_best_case(best_run, best_fitness_of_case, best_fitness_run_of_case)
+
+    report_best_figure(best_run)
+
+
 if __name__ == '__main__':
     map = TSPMap()
     map.read("kroA100.tsp")
 
-    best, worst = varying_crossover_mutation_types(map)
-    performance_of_best_and_worst(map, best, worst)
-    varying_values(map, best)
+    # best, worst = varying_crossover_mutation_types(map)
+    # performance_of_best_and_worst(map, best, worst)
+    # varying_values(map, best)
+    improving_performance(map, None)

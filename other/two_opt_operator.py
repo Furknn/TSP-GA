@@ -10,6 +10,7 @@ def two_opt_operator(tsp_map: TSPMap, population: list, m: int, n: int):
 
     # select m individuals from the population and add them to the selected individuals
     indexes = sample(range(1, len(population)), m)
+    indexes.append(0)
 
     for i in indexes:
         individual = population[i]
