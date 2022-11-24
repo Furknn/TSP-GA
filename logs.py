@@ -13,6 +13,14 @@ def log_per_combination(best_case_run_time_in_operator_combination, crossover_op
                 best_case_run_time_in_operator_combination) + ".txt\n")
 
 
+def log_per_combination_k_n_m(best_case_run_time_in_operator_combination, crossover_operator, mutation_operator, k, n, m):
+    if not os.path.exists("first_run/" + crossover_operator + "_" + mutation_operator):
+        os.makedirs("first_run/" + crossover_operator + "_" + mutation_operator)
+    with open("first_run/" + crossover_operator + "_" + mutation_operator + "/results.txt", "w") as f:
+        f.write(
+            "Best result path: first_run/" + crossover_operator + "_" + mutation_operator + "/results_" + str(
+                best_case_run_time_in_operator_combination) + ".txt\n")
+
 def log_per_run(best_individual_of_run, crossover_operator, i, mutation_operator, tsp_ga):
     # write to file
     if not os.path.exists("first_run/" + crossover_operator + "_" + mutation_operator):
