@@ -3,6 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from TSPSA import TSPSA
+
 
 def log_per_combination(best_case_run_time_in_operator_combination, crossover_operator, mutation_operator):
     if not os.path.exists("first_run/" + crossover_operator + "_" + mutation_operator):
@@ -13,13 +15,15 @@ def log_per_combination(best_case_run_time_in_operator_combination, crossover_op
                 best_case_run_time_in_operator_combination) + ".txt\n")
 
 
-def log_per_combination_k_n_m(best_case_run_time_in_operator_combination, crossover_operator, mutation_operator, k, n, m):
+def log_per_combination_k_n_m(best_case_run_time_in_operator_combination, crossover_operator, mutation_operator, k, n,
+                              m):
     if not os.path.exists("first_run/" + crossover_operator + "_" + mutation_operator):
         os.makedirs("first_run/" + crossover_operator + "_" + mutation_operator)
     with open("first_run/" + crossover_operator + "_" + mutation_operator + "/results.txt", "w") as f:
         f.write(
             "Best result path: first_run/" + crossover_operator + "_" + mutation_operator + "/results_" + str(
                 best_case_run_time_in_operator_combination) + ".txt\n")
+
 
 def log_per_run(best_individual_of_run, crossover_operator, i, mutation_operator, tsp_ga):
     # write to file
@@ -168,7 +172,7 @@ def log_best_and_worst(best_case_run_time, best_crossover_operator, best_mutatio
                 worst_case_run_time) + ".txt\n")
 
 
-def log_improving_performance_each_run( case, case_best_individual, j):
+def log_improving_performance_each_run(case, case_best_individual, j):
     # write to file
     if not os.path.exists("fourth_run/"):
         os.makedirs("fourth_run/")
@@ -210,3 +214,90 @@ def report_best_figure(best_run):
     fig.savefig("fourth_run/best_case.png", dpi=300)
 
     plt.show()
+
+
+def log_sa_each_run(sa: TSPSA, i: int, cooling_rate: float, iterations_per_temp: float):
+    # Log the result of each run under folder /result/sa_{cooling_rate}_{iterations_per_temp}/sa_{cooling_rate}_{iterations_per_temp}_{run}.txt
+    if not os.path.exists("result/sa_{cooling_rate}_{iterations_per_temp}".format(cooling_rate=cooling_rate,
+                                                                                  iterations_per_temp=iterations_per_temp)):
+        os.makedirs("result/sa_{cooling_rate}_{iterations_per_temp}".format(cooling_rate=cooling_rate,
+                                                                            iterations_per_temp=iterations_per_temp))
+
+    with open("result/sa_{cooling_rate}_{iterations_per_temp}/sa_{cooling_rate}_{iterations_per_temp}_{run}.txt".format(
+            cooling_rate=cooling_rate, iterations_per_temp=iterations_per_temp, run=i), "w") as f:
+        f.write("Best fitness: " + str(sa.best_fitness) + "\n")
+        f.write("Best individual: " + str(sa.best_solution) + "\n")
+        for i in range(len(sa.fitnesses)):
+            f.write("Iteration: " + str(i) + " Fitness: " + str(sa.fitnesses[i]) + "\n")
+
+
+def log_sa_each_case(outputs, cooling_rate, iterations_per_temp):
+    # Log the result of each run under folder /result/sa_{cooling_rate}_{iterations_per_temp}/sa_{cooling_rate}_{iterations_per_temp}_result.txt
+    if not os.path.exists(f"result/sa_{cooling_rate}_{iterations_per_temp}"):
+        os.makedirs(f"result/sa_{cooling_rate}_{iterations_per_temp}")
+
+    best_fit = outputs["best_fitness"]
+    avg_fit = outputs["average_fitness"]
+    run_time = outputs["running_time"]
+    complete_time = outputs["complete_time"]
+
+    with open(f"result/sa_{cooling_rate}_{iterations_per_temp}/sa_{cooling_rate}_{iterations_per_temp}_result.txt",
+              "w") as f:
+        f.write("Best fitness: " + str(best_fit) + "\n")
+        f.write(f"Average fitness: {avg_fit}\n")
+        f.write(f"Running time: {run_time}\n")
+        f.write(f"Complete time: {complete_time}\n")
+
+
+def log_sa_vs_ga(sa_outputs, ga_outputs):
+    # Log the result of each run under folder /result/sa_vs_ga/sa_vs_ga_result.txt
+    if not os.path.exists("result_2/sa_vs_ga"):
+        os.makedirs("result_2/sa_vs_ga")
+
+    sa_best_fit= sa_outputs["best_fitness"]
+    sa_avg_fit = sa_outputs["average_fitness"]
+    sa_run_time = sa_outputs["running_time"]
+    sa_complete_time = sa_outputs["complete_time"]
+
+    ga_best_fit = ga_outputs["best_fitness"]
+    ga_avg_fit = ga_outputs["average_fitness"]
+    ga_run_time = ga_outputs["running_time"]
+    ga_complete_time = ga_outputs["complete_time"]
+
+    with open(f"result_2/sa_vs_ga/sa_vs_ga_result.txt", "w") as f:
+        f.write(f"SA best fitness: {sa_best_fit}\n")
+        f.write(f"SA average fitness: {sa_avg_fit}\n")
+        f.write(f"SA running time: {sa_run_time}\n")
+        f.write(f"SA complete time: {sa_complete_time}\n")
+
+        f.write(f"GA best fitness: {ga_best_fit}\n")
+        f.write(f"GA average fitness: {ga_avg_fit}\n")
+        f.write(f"GA running time: {ga_run_time}\n")
+        f.write(f"GA complete time: {ga_complete_time}\n")
+
+
+def log_sa_vs_ga_each_run(sa, ga, i):
+    # log run to txt file in /result_2/sa_vs_ga/sa_vs_ga_{i}.txt
+    if not os.path.exists("result_2/sa_vs_ga"):
+        os.makedirs("result_2/sa_vs_ga")
+
+    with open(f"result_2/sa_vs_ga/sa_vs_ga_{i}.txt", "w") as f:
+        f.write("------------------------------Genetic Algorithm------------------------------\n")
+        for i in range(len(ga.best_fitnesses)):
+            f.write("Generation: " + str(i) + " Best fitness: " + str(
+                ga.best_fitnesses[i]) + " Avarage fitness: " + str(
+                ga.avarage_fitnesses[i]) + " Standard deviation: " + str(
+                ga.standard_deviations[i]) + "\n")
+
+        f.write("Best individual: " + str(ga.best_individual) + "\n")
+        f.write("Best fitness: " + str(ga.best_fitness) + "\n")
+        f.write("Running time: " + str(ga.running_time) + "\n")
+
+        f.write("\n\n\n\n\n\n\n\n\n\n------------------------------Simulated Annealing------------------------------\n")
+        for i in range(len(sa.fitnesses)):
+            f.write("Iteration: " + str(i) + " Fitness: " + str(sa.fitnesses[i]) + "\n")
+
+        f.write("Best solution: " + str(sa.best_solution) + "\n")
+        f.write("Best fitness: " + str(sa.best_fitness) + "\n")
+        f.write("Running time: " + str(sa.running_time) + "\n")
+
