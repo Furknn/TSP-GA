@@ -314,14 +314,7 @@ if __name__ == '__main__':
     # varying_values(tsp_map, best)
     # improving_performance(tsp_map, None)
 
+
     # Project 2
     SAwithDiffrentCoolingSchedules(tsp_map)
     CompareSAwithGA(tsp_map)
-
-    # percentage of improvement
-    # from
-    val1 = 21294
-    # to
-    val2 = 21282
-
-    print((val1 - val2) / val1 * 100)
