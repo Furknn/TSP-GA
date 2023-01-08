@@ -201,9 +201,9 @@ def SAwithDiffrentCoolingSchedules(tsp_map: TSPMap):
 
     outputs = [
         {"average_fitness": 0.0, "best_solution": [], "fitness_per_run": [], "running_time_per_run": [],
-         "best_fitness_index": 0, "best_fitness": 0.0, "complete_time": 0.0},
+         "best_fitness_index": 0, "best_fitness": 0.0, "complete_time": 0.0, "best_solution_fitnesses": []},
         {"average_fitness": 0.0, "best_solution": [], "fitness_per_run": [], "running_time_per_run": [],
-         "best_fitness_index": 0, "best_fitness": 0.0, "complete_time": 0.0}
+         "best_fitness_index": 0, "best_fitness": 0.0, "complete_time": 0.0, "best_solution_fitnesses": []}
     ]
 
     # Run the first case num_runs times
@@ -225,6 +225,7 @@ def SAwithDiffrentCoolingSchedules(tsp_map: TSPMap):
                 outputs[j]["best_fitness"] = sa.best_fitness
                 outputs[j]["best_solution"] = sa.best_solution
                 outputs[j]["best_fitness_index"] = i
+                outputs[j]["best_solution_fitnesses"] = sa.fitnesses
 
             log_sa_each_run(sa, i, param["cooling_rate"], param["iterations_per_temp"])
 
@@ -233,9 +234,7 @@ def SAwithDiffrentCoolingSchedules(tsp_map: TSPMap):
         outputs[j]["complete_time"] = sum(outputs[j]["running_time_per_run"])
 
         log_sa_each_case(outputs[j], param["cooling_rate"], param["iterations_per_temp"])
-
-    print(outputs)
-
+        report_sa_each_case(outputs[j]["best_solution_fitnesses"], param["cooling_rate"], param["iterations_per_temp"])
 
 
 def CompareSAwithGA(tsp_map):
@@ -249,13 +248,13 @@ def CompareSAwithGA(tsp_map):
                  "stopping_temp": 0.001}
 
     sa_outputs = {"average_fitness": 0.0, "best_solution": [], "fitness_per_run": [], "running_time_per_run": [],
-                  "best_fitness_index": 0, "best_fitness": 0.0, "complete_time": 0.0}
-
-    ga_outputs = {"average_fitness": 0.0, "best_solution": [], "fitness_per_run": [], "running_time_per_run": [],
-                  "best_fitness_index": 0, "best_fitness": 0.0, "complete_time": 0.0}
+                  "best_fitness_index": 0, "best_fitness": 0.0, "complete_time": 0.0, "best_solution_fitnesses": []}
 
     ga_params = {"population_size": 50, "mutation_probability": 0.3, "generations": 20000, "tournament_size": 5,
                  "crossover_operator": "PMX", "mutation_operator": "SM"}
+
+    ga_outputs = {"average_fitness": 0.0, "best_solution": [], "fitness_per_run": [], "running_time_per_run": [],
+                  "best_fitness_index": 0, "best_fitness": 0.0, "complete_time": 0.0, "best_solution_fitnesses": []}
 
     for i in range(num_runs):
         start_time = time.time()
@@ -272,6 +271,7 @@ def CompareSAwithGA(tsp_map):
             sa_outputs["best_fitness"] = sa.best_fitness
             sa_outputs["best_solution"] = sa.best_solution
             sa_outputs["best_fitness_index"] = i
+            sa_outputs["best_solution_fitnesses"] = sa.fitnesses
 
         ga = TSPGA(tsp_map=tsp_map, population_size=ga_params["population_size"],
                    mutation_probability=ga_params["mutation_probability"], generations=ga_params["generations"],
@@ -286,7 +286,7 @@ def CompareSAwithGA(tsp_map):
             ga_outputs["best_fitness"] = ga.best_fitness
             ga_outputs["best_solution"] = ga.best_individual
             ga_outputs["best_fitness_index"] = i
-
+            ga_outputs["best_solution_fitnesses"] = ga.best_fitnesses
 
         log_sa_vs_ga_each_run(sa, ga, i)
 
@@ -300,19 +300,28 @@ def CompareSAwithGA(tsp_map):
 
     log_sa_vs_ga(sa_outputs, ga_outputs)
 
-    print(sa_outputs)
+    report_sa_vs_ga(sa_outputs["best_solution_fitnesses"], ga_outputs["best_solution_fitnesses"])
 
 
 if __name__ == '__main__':
     tsp_map = TSPMap()
     tsp_map.read("kroA100.tsp")
 
-    # best, worst = varying_crossover_mutation_types(map)
-    # performance_of_best_and_worst(map, best, worst)
-    # varying_values(map, best)
-    # improving_performance(map, None)
+    # Project 1
+    # best, worst = varying_crossover_mutation_types(tsp_map)
+    # performance_of_best_and_worst(tsp_map, best, worst)
     # best = ["OX", "IVM", 21346.283044622232, 0.0, 0.0]
+    # varying_values(tsp_map, best)
+    # improving_performance(tsp_map, None)
 
-    # Simulated Annealing
+    # Project 2
     SAwithDiffrentCoolingSchedules(tsp_map)
     CompareSAwithGA(tsp_map)
+
+    # percentage of improvement
+    # from
+    val1 = 21294
+    # to
+    val2 = 21282
+
+    print((val1 - val2) / val1 * 100)

@@ -240,6 +240,7 @@ def log_sa_each_case(outputs, cooling_rate, iterations_per_temp):
     avg_fit = outputs["average_fitness"]
     run_time = outputs["running_time"]
     complete_time = outputs["complete_time"]
+    best_fit_index = outputs["best_fitness_index"]
 
     with open(f"result/sa_{cooling_rate}_{iterations_per_temp}/sa_{cooling_rate}_{iterations_per_temp}_result.txt",
               "w") as f:
@@ -247,6 +248,21 @@ def log_sa_each_case(outputs, cooling_rate, iterations_per_temp):
         f.write(f"Average fitness: {avg_fit}\n")
         f.write(f"Running time: {run_time}\n")
         f.write(f"Complete time: {complete_time}\n")
+        f.write(f"Best fitness index: {best_fit_index}\n")
+
+
+def report_sa_each_case(fitnesses, cooling_rate, iterations_per_temp):
+    data = pd.DataFrame({"Fitness": fitnesses})
+    p = sns.lineplot(data=data)
+    p.set_xlabel("Iteration")
+    p.set_ylabel("Fitness")
+
+    # increase resolution
+    fig = p.get_figure()
+    fig.savefig(f"result/sa_{cooling_rate}_{iterations_per_temp}/sa_{cooling_rate}_{iterations_per_temp}_result.png",
+                dpi=300)
+
+    plt.show()
 
 
 def log_sa_vs_ga(sa_outputs, ga_outputs):
@@ -254,26 +270,30 @@ def log_sa_vs_ga(sa_outputs, ga_outputs):
     if not os.path.exists("result_2/sa_vs_ga"):
         os.makedirs("result_2/sa_vs_ga")
 
-    sa_best_fit= sa_outputs["best_fitness"]
+    sa_best_fit = sa_outputs["best_fitness"]
     sa_avg_fit = sa_outputs["average_fitness"]
     sa_run_time = sa_outputs["running_time"]
     sa_complete_time = sa_outputs["complete_time"]
+    sa_best_fit_index = sa_outputs['best_fitness_index']
 
     ga_best_fit = ga_outputs["best_fitness"]
     ga_avg_fit = ga_outputs["average_fitness"]
     ga_run_time = ga_outputs["running_time"]
     ga_complete_time = ga_outputs["complete_time"]
+    ga_best_fit_index = ga_outputs['best_fitness_index']
 
     with open(f"result_2/sa_vs_ga/sa_vs_ga_result.txt", "w") as f:
         f.write(f"SA best fitness: {sa_best_fit}\n")
         f.write(f"SA average fitness: {sa_avg_fit}\n")
         f.write(f"SA running time: {sa_run_time}\n")
         f.write(f"SA complete time: {sa_complete_time}\n")
+        f.write(f"SA best fitness index: {sa_best_fit_index}\n")
 
         f.write(f"GA best fitness: {ga_best_fit}\n")
         f.write(f"GA average fitness: {ga_avg_fit}\n")
         f.write(f"GA running time: {ga_run_time}\n")
         f.write(f"GA complete time: {ga_complete_time}\n")
+        f.write(f"GA best fitness index: {ga_best_fit_index}\n")
 
 
 def log_sa_vs_ga_each_run(sa, ga, i):
@@ -301,3 +321,26 @@ def log_sa_vs_ga_each_run(sa, ga, i):
         f.write("Best fitness: " + str(sa.best_fitness) + "\n")
         f.write("Running time: " + str(sa.running_time) + "\n")
 
+
+def report_sa_vs_ga(sa_best_fitnesses, ga_best_fitnesses):
+    sa_data = pd.DataFrame({"SA fitnesses": sa_best_fitnesses})
+    p = sns.lineplot(data=sa_data)
+    p.set_xlabel("Iteration")
+    p.set_ylabel("Fitness")
+
+    # increase resolution
+    fig = p.get_figure()
+    fig.savefig("result_2/sa_vs_ga/sa_fitnesses.png", dpi=300)
+
+    plt.show()
+
+    ga_data = pd.DataFrame({"GA fitnesses": ga_best_fitnesses})
+    p = sns.lineplot(data=ga_data)
+    p.set_xlabel("Iteration")
+    p.set_ylabel("Fitness")
+
+    # increase resolution
+    fig = p.get_figure()
+    fig.savefig("result_2/sa_vs_ga/ga_fitnesses.png", dpi=300)
+
+    plt.show()
